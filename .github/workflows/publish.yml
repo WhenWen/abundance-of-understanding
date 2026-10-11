@@ -40,5 +40,9 @@ jobs:
           cp dist/index.html dist/zh.html dist/essay.md dist/essay-zh.md /tmp/published-site/
           printf '%s\n' "$SOURCE_SHA" > /tmp/published-site/source-commit.txt
           git -C /tmp/published-site add .
-          git -C /tmp/published-site commit -m "Publish source $SOURCE_SHA"
-          git -C /tmp/published-site push origin HEAD:refs/heads/published
+          if git -C /tmp/published-site diff --cached --quiet; then
+            echo "This source version is already published."
+          else
+            git -C /tmp/published-site commit -m "Publish source $SOURCE_SHA"
+            git -C /tmp/published-site push origin HEAD:refs/heads/published
+          fi
