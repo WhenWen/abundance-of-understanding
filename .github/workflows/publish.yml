@@ -1,0 +1,44 @@
+name: Publish website
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Build English and Chinese pages
+        run: python3 build.py
+      - name: Validate generated pages
+        run: python3 scripts/check-site.py
+      - name: Publish generated files
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin published >/dev/null 2>&1; then
+            git fetch origin published
+            git worktree add --detach /tmp/published-site FETCH_HEAD
+          else
+            git worktree add --detach /tmp/published-site HEAD
+            git -C /tmp/published-site checkout --orphan published
+          fi
+          git -C /tmp/published-site rm -rf --ignore-unmatch .
+          cp dist/index.html dist/zh.html dist/essay.md dist/essay-zh.md /tmp/published-site/
+          printf '%s\n' "$SOURCE_SHA" > /tmp/published-site/source-commit.txt
+          git -C /tmp/published-site add .
+          git -C /tmp/published-site commit -m "Publish source $SOURCE_SHA"
+          git -C /tmp/published-site push origin HEAD:refs/heads/published

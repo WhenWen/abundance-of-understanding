@@ -1,0 +1,5 @@
+dist/
+index.html
+zh.html
+__pycache__/
+.DS_Store
