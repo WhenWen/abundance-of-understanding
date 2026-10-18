@@ -28,7 +28,7 @@ Open http://127.0.0.1:8765/. Generated HTML and `dist/` are ignored on `main`; d
 
 ## Hosting bridge
 
-[`hosting/worker.js`](hosting/worker.js) is the small Sites worker that serves the generated files from this repository's `published` branch at the existing website URL. It forwards no visitor cookies or authorization headers to GitHub and only serves the two pages and two Markdown downloads. If GitHub is unavailable it returns a retryable error. Changes to this bridge itself or adding new URL routes require a separate Sites deployment; normal content and layout edits do not.
+[`hosting/worker.js`](hosting/worker.js) is the small Sites worker that serves the generated files from this repository's `published` branch at the existing website URL. It forwards no visitor cookies or authorization headers to GitHub and only serves the two pages and two Markdown downloads. If GitHub is unavailable, times out, or returns invalid content, it serves the last verified publication bundled into the bridge. The response header `X-Essay-Source` identifies `github` or `bundled`; refresh the bundled snapshot from the `published` branch whenever deploying bridge changes. Changes to this bridge itself or adding new URL routes require a separate Sites deployment; normal content and layout edits do not.
 
 ## 中文说明
 

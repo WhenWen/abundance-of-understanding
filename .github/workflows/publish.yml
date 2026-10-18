@@ -21,6 +21,8 @@ jobs:
         run: python3 build.py
       - name: Validate generated pages
         run: python3 scripts/check-site.py
+      - name: Verify hosting bridge outage recovery
+        run: node hosting/check-worker.mjs
       - name: Publish generated files
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
