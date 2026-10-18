@@ -10,6 +10,7 @@ try {
   globalThis.fetch = async (url, options) => {
     assert.match(url, /^https:\/\/raw.githubusercontent.com\/WhenWen\/abundance-of-understanding\/published\//);
     assert.equal(options.headers, undefined);
+    assert.equal(options.redirect, 'manual');
     return new Response('<!doctype html><title>Fresh GitHub publication</title>');
   };
   let result = await worker.fetch(request('/'));
@@ -18,6 +19,7 @@ try {
   const failures = [
     async () => {throw new TypeError('network unavailable');},
     async () => new Response('blocked', {status: 403}),
+    async () => new Response('', {status: 302, headers: {Location: 'https://untrusted.example/'}}),
     async () => new Response(''),
     async () => new Response(new ReadableStream({start(c) {c.error(new Error('broken stream'));}})),
   ];

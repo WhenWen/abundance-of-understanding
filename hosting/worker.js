@@ -30,7 +30,8 @@ export default {
     try {
       // Fetch only this fixed public URL; never forward visitor credentials.
       const upstream = await fetch(origin + file, {
-        redirect: 'error',
+        // workerd accepts follow/manual, not error. Reject 3xx via upstream.ok.
+        redirect: 'manual',
         signal: controller.signal,
         cf: {cacheTtl: 60, cacheEverything: true},
       });
